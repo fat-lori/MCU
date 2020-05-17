@@ -1,0 +1,6 @@
+在keil中的User->After Build/Rebuild中Run1打钩，使用fromelf工具。
+输入此命令： fromelf --bin -o ..\@L.bin #L
+..为上一目录，起始路径为工程所在的路径
+#L：生成axf文件所在的路径及文件名
+$L：生成axf文件所在的路径，包括'\'
+@L：生成axf文件的文件名，其实为Outpt中的“Name of Executable”的名字
