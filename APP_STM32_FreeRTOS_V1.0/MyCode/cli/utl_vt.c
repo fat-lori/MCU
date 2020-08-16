@@ -379,24 +379,7 @@ void CON_putchar(const char *data,UI16_T len)
 		}
 }
 
-void print_buf(unsigned char * pBuf,  int lLen)
-{
-   unsigned long i;
-   if(lLen<=0)
-   	return;
-   for(i=0;i<lLen;i++)
-   {
-   	  if(i%16==0)
-	  {
-		  printf("\r\n%d: ",i);
-	  }
-	  printf("%2x",pBuf[i]);
-	  printf(" ");
-	 
-	  	
-   }
-   printf("\r\n");
-}
+
 
 
 

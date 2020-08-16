@@ -1,6 +1,5 @@
 #include "sys.h"
 #include "usart.h"	
-#include "FreeRTOS.h"					//FreeRTOS π”√	  
 #include "control.h"
 #include "delay.h"
 #include "basetype.h"

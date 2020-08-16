@@ -20,11 +20,15 @@ extern "C"{
 
 #include <string.h>
 #include "basetype.h"
+#include "control.h"
 
 extern UI8_T log_level;
+extern void print_buf(unsigned char * pBuf,  int iLen);
+
 
 #define LOGGER_ON           1
 #define LOGGER_OFF          0
+
 
 //所有log的总开开关
 #define VERBOSE_LOG_EN      LOGGER_ON
@@ -35,65 +39,97 @@ extern UI8_T log_level;
 #define ASSERT_LOG_EN       LOGGER_ON
 
 
+//打印等级，等级越高，数字越小，log_level为0时，只有VER打印可以显示；log_level为5时，所有打印都可以显示
+#define LEVEL_VERBOSE       5       //详细
+#define LEVEL_DEBUG         4       //调试
+#define LEVEL_INFO          3       //信息
+#define LEVEL_WARN          2       //警告
+#define LEVEL_ERROR         1       //错误
+#define LEVEL_ASSERT        0       //断言
 
 
-
-#define LEVEL_VERBOSE       5
-#define LEVEL_DEBUG         4
-#define LEVEL_INFO          5
-#define LEVEL_WARN          2
-#define LEVEL_ERROR         1
-#define LEVEL_ASSERT        0
-
-
-
-
-
+//文件地址全路径和只显示文件名开关
+#if 1
 #define filename(x) strrchr(x,'\\')?strrchr(x,'\\')+1:x
+#else
+#define filename(x) (x)
+#endif
 
+
+//若不加锁，任务切换时，printf打印会出现打印错误的问题
 #if VERBOSE_LOG_EN == LOGGER_ON
-#define LOG_VER(format, ...)  if(log_level>=LEVEL_VERBOSE)\
-                                printf("\r\n\033[34m [%s]\t %s:%d(%s) --> "format" \033[0m", LOG_TAG, filename(__FILE__), __LINE__, __func__, ##__VA_ARGS__)
+#define LOG_VER(format, ...)        do{\
+                                        if(LEVEL_VERBOSE <= log_level){\
+                                            lock_src(LOCK_SRC_PRINTF, portMAX_DELAY);\
+                                            printf("\r\n\033[34m [%-5.5s]    %-14s:%-4d(%s) --> "format" \033[0m", LOG_TAG, filename(__FILE__), __LINE__, __func__, ##__VA_ARGS__);\
+                                            unlock_src(LOCK_SRC_PRINTF);\
+                                        }\
+                                    }while(0)
 #else
 #define LOG_VER(format, ...)
 #endif
 
 
 #if DEBUG_LOG_EN == LOGGER_ON
-#define LOG_DEBUG(format, ...)  if(log_level>=LEVEL_DEBUG)\
-                                printf("\r\n\033[32m [%s]\t %s:%d(%s) --> "format" \033[0m", LOG_TAG, filename(__FILE__), __LINE__, __func__, ##__VA_ARGS__)
+#define LOG_DEBUG(format, ...)      do{\
+                                        if(LEVEL_DEBUG <= log_level){\
+                                            lock_src(LOCK_SRC_PRINTF, portMAX_DELAY);\
+                                            printf("\r\n\033[32m [%-5.5s]    %-14s:%-4d(%s) --> "format" \033[0m", LOG_TAG, filename(__FILE__), __LINE__, __func__, ##__VA_ARGS__);\
+                                            unlock_src(LOCK_SRC_PRINTF);\
+                                        }\
+                                    }while(0)
 #else
 #define LOG_DEBUG(format, ...)
 #endif
 
 
 #if INFO_LOG_EN == LOGGER_ON
-#define LOG_INFO(format, ...)  if(log_level>=LEVEL_INFO)\
-                                printf("\r\n\033[36m [%s]\t %s:%d(%s) --> "format" \033[0m", LOG_TAG, filename(__FILE__), __LINE__, __func__, ##__VA_ARGS__)
+#define LOG_INFO(format, ...)   do{\
+                                        if(LEVEL_INFO <= log_level){\
+                                            lock_src(LOCK_SRC_PRINTF, portMAX_DELAY);\
+                                            printf("\r\n\033[32m [%-5.5s]    %-14s:%-4d(%s) --> "format" \033[0m", LOG_TAG, filename(__FILE__), __LINE__, __func__, ##__VA_ARGS__);\
+                                            unlock_src(LOCK_SRC_PRINTF);\
+                                        }\
+                                    }while(0)
 #else
 #define LOG_INFO(format, ...)
 #endif
 
 
 #if WARN_LOG_EN == LOGGER_ON
-#define LOG_WARN(format, ...)  if(log_level>=LEVEL_WARN)\
-                                printf("\r\n\033[33m [%s]\t %s:%d(%s) --> "format" \033[0m", LOG_TAG, filename(__FILE__), __LINE__, __func__, ##__VA_ARGS__)
+#define LOG_WARN(format, ...)       do{\
+                                        if(LEVEL_WARN <= log_level){\
+                                            lock_src(LOCK_SRC_PRINTF, portMAX_DELAY);\
+                                            printf("\r\n\033[32m [%-5.5s]    %-14s:%-4d(%s) --> "format" \033[0m", LOG_TAG, filename(__FILE__), __LINE__, __func__, ##__VA_ARGS__);\
+                                            unlock_src(LOCK_SRC_PRINTF);\
+                                        }\
+                                    }while(0)
 #else
 #define LOG_WARN(format, ...)
 #endif
 
 
 #if ERROR_LOG_EN == LOGGER_ON
-#define LOG_ERROR(format, ...)  if(log_level>=LEVEL_ERROR)\
-                                printf("\r\n\033[31m [%s]\t %s:%d(%s) --> "format" \033[0m", LOG_TAG, filename(__FILE__), __LINE__, __func__, ##__VA_ARGS__)
+#define LOG_ERR(format, ...)        do{\
+                                        if(LEVEL_ERROR <= log_level){\
+                                            lock_src(LOCK_SRC_PRINTF, portMAX_DELAY);\
+                                            printf("\r\n\033[32m [%-5.5s]    %-14s:%-4d(%s) --> "format" \033[0m", LOG_TAG, filename(__FILE__), __LINE__, __func__, ##__VA_ARGS__);\
+                                            unlock_src(LOCK_SRC_PRINTF);\
+                                        }\
+                                    }while(0)
 #else
-#define LOG_ERROR(format, ...)
+#define LOG_ERR(format, ...)
 #endif
 
 
 #if ASSERT_LOG_EN == LOGGER_ON
-#define LOG_ASSERT(format, ...)  if(log_level>=LEVEL_ASSERT)\
-                                printf("\r\n\033[35m [%s]\t %s:%d(%s) --> "format" \033[0m", LOG_TAG, filename(__FILE__), __LINE__, __func__, ##__VA_ARGS__)
+#define LOG_ASSERT(format, ...)     do{\
+                                        if(LEVEL_ASSERT <= log_level){\
+                                            lock_src(LOCK_SRC_PRINTF, portMAX_DELAY);\
+                                            printf("\r\n\033[32m [%-5.5s]    %-14s:%-4d(%s) --> "format" \033[0m", LOG_TAG, filename(__FILE__), __LINE__, __func__, ##__VA_ARGS__);\
+                                            unlock_src(LOCK_SRC_PRINTF);\
+                                        }\
+                                    }while(0)
 #else
 #define LOG_ASSERT(format, ...)
 #endif

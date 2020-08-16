@@ -1,7 +1,6 @@
 #include "log.h"
 #include "cli.h"
 #include "command.h"
-#include "log.h"
 #include "utl_string.h"
 
 

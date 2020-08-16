@@ -22,10 +22,17 @@ extern "C"{
 typedef unsigned char       UI8_T;
 typedef unsigned short      UI16_T;
 typedef unsigned int        UI32_T;
+typedef unsigned long long  UI64_T;
+
 typedef signed char         I8_T;
 typedef signed short        I16_T;
 typedef signed long         I32_T;
-typedef unsigned long long  UI64_T;
+
+
+typedef unsigned char   BYTE;
+typedef unsigned short  WORD;
+typedef unsigned int    DWORD;
+
 
 #define FALSE       0
 #define TRUE        1

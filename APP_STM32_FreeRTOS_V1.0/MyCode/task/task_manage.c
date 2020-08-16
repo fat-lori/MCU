@@ -9,19 +9,18 @@
 ***********************************************************************************/
 #include <stdio.h>
 #include "basetype.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "timers.h"
 #include "led.h"
 #include "delay.h"
-#include "task_manage.h"
 #include "cli.h"
 #include "malloc.h"	
 #include "lcd.h"
 #include "control.h"
-#include "FreeRTOS.h"   
 #include "task.h"
+#include "timers.h"
+#include "task_manage.h"
 
+#include "log.h"
+#define LOG_TAG     "task"
 
 //任务句柄
 TaskHandle_t StartTask_Handler;
@@ -179,7 +178,7 @@ void handle_task(void *pvParameters)
 //开始任务任务函数
 void start_task(void *pvParameters)
 {
-	
+	LOG_DEBUG("Hello World!");
 	//创建LED0任务
 	xTaskCreate((TaskFunction_t )led0_task, 		
 				(const char*	)"led0_task",		
@@ -240,7 +239,8 @@ void start_task(void *pvParameters)
 void card_setup()
 {
     taskENTER_CRITICAL();			//进入临界区，保证临界段中的程序执行不被任何中断打断！
-    
+
+    LOG_DEBUG("Start Task!");
 	//创建开始任务
 	xTaskCreate((TaskFunction_t )start_task,			//任务函数
 				(const char*	)"start_task",			//任务名称

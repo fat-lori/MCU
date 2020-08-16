@@ -7,10 +7,10 @@
  * 其    他   : 
  * 修改日志   : 
 ***********************************************************************************/
-#include "FreeRTOS.h"   
+#include "control.h"
 #include "task.h"
 #include "semphr.h"
-#include "control.h"
+
 
 
 static QueueHandle_t Queue_Handle[QUEUE_SRC_MAX] = {0};

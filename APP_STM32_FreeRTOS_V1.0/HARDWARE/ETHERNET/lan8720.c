@@ -157,13 +157,13 @@ u8 ETH_MACDMA_Config(void)
 	return rval;
 }
 
-extern void lwip_pkt_handle(void);		//在lwip_comm.c里面定义
+//extern void lwip_pkt_handle(void);		//在lwip_comm.c里面定义
 //以太网中断服务函数
 void ETH_IRQHandler(void)
 {
 	while(ETH_GetRxPktSize(DMARxDescToGet)!=0) 	//检测是否收到数据包
 	{ 
-		lwip_pkt_handle();		
+		//lwip_pkt_handle();		
 	}
 	ETH_DMAClearITPendingBit(ETH_DMA_IT_R);
 	ETH_DMAClearITPendingBit(ETH_DMA_IT_NIS);

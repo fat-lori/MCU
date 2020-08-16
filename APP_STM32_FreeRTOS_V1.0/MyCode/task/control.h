@@ -18,6 +18,7 @@ extern "C"{
 #endif
 #endif /* __cplusplus */
 
+#include "FreeRTOS.h"
 #include "queue.h"
 
 typedef enum {
@@ -28,15 +29,14 @@ typedef enum {
 
 
 typedef enum {
-
-	LOCK_SRC_CPLD_I2C	= 0,
-	LOCK_SRC_I2C		= 1,
-	LOCK_SRC_SPI		= 2,
-	LOCK_SRC_ELOG		= 3,	
-	LOCK_SRC_UART0		= 4,
-	LOCK_SRC_UART1		= 5,
-	LOCK_SRC_UART2		= 6,
-	LOCK_SRC_MAX,
+    LOCK_SRC_CPLD_I2C   = 0,
+    LOCK_SRC_I2C        = 1,
+    LOCK_SRC_SPI        = 2,
+    LOCK_SRC_PRINTF     = 3,	
+    LOCK_SRC_UART0      = 4,
+    LOCK_SRC_UART1      = 5,
+    LOCK_SRC_UART2      = 6,
+    LOCK_SRC_MAX,
 }LOCK_SRC_T;
 
 

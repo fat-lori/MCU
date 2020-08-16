@@ -33,5 +33,24 @@ void set_log_level(UI8_T level)
 }
 
 
+void print_buf(unsigned char * pBuf,  int iLen)
+{
+    UI8_T i = 0;
+
+    if(iLen<=0)
+   	    return;
+    
+    for (i=0; i<iLen; i++)
+    {
+        if (i%16 == 0)
+            printf("\r\n %.2d \t:(HEX)",i);
+        printf("%d ",pBuf[i]);
+    
+    }
+    printf("\r\n");
+}
+
+
+
 
 
