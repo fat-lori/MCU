@@ -1,0 +1,14 @@
+此次移植使用了官方LWIP2.1.0版本源码，移植过程及发现问题如下
+
+一、移植文件
+1、将LWIP2.1.0\lwip-2.1.0\src中api、core、netif中的源文件全部复制源码的LWIP文件夹，并添加至KEIL中（core中的IPV6未加入，netif中的slipif.c和ppp未加入）
+2、将\contrib-2.1.0\examples\example_app下的lwipopts.h ，contrib-2.1.0\ports\unix\port\include\arch的cc.h和pref.h文件拷贝到 arch 文件夹中
+3、cc.h和pref.h文件需要进行修改，如源码所示（cc.h文件中包含处理器相关的变量类型、数据结构及字节对齐的相关宏。perf.h文件是与系统统计与测量相关的头文件，我们暂时无需使用任何统计与测量功能，因此该头文件的量宏定义直接为空即可）
+4、将 sys_arch.c 和sys_arch.h文件放置在arch文件夹中，路径分别为“contrib-2.1.0\ports\freertos”与“contrib-2.1.0\ports\freertos\include\arch”
+
+二、开始编译
+1、DNS若宏定义打开，最后的宏定义没有被替换成rand()函数，__DOXYGEN__未定义，最后将宏定义关闭
+2、IPV6若宏定义打开，MEMCPY失败，此宏定义关闭
+3、sys_unlock_tcpip_core等函数链接时失败，将lwipopts.h中最后的OPTTEST部分全部删除后正常。
+4、erron连接时失败，在sys_arch.c中声名此全局变量，int erron。
+5、

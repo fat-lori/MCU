@@ -4,10 +4,10 @@
 #include "delay.h"
 #include "malloc.h" 
 
-__align(4) ETH_DMADESCTypeDef *DMARxDscrTab;	//以太网DMA接收描述符数据结构体指针
-__align(4) ETH_DMADESCTypeDef *DMATxDscrTab;	//以太网DMA发送描述符数据结构体指针 
-__align(4) uint8_t *Rx_Buff; 					//以太网底层驱动接收buffers指针 
-__align(4) uint8_t *Tx_Buff; 					//以太网底层驱动发送buffers指针
+//__align(4) ETH_DMADESCTypeDef *DMARxDscrTab;	//以太网DMA接收描述符数据结构体指针
+//__align(4) ETH_DMADESCTypeDef *DMATxDscrTab;	//以太网DMA发送描述符数据结构体指针 
+//__align(4) uint8_t *Rx_Buff; 					//以太网底层驱动接收buffers指针 
+//__align(4) uint8_t *Tx_Buff; 					//以太网底层驱动发送buffers指针
   
 static void ETHERNET_NVICConfiguration(void);
 //LAN8720初始化
@@ -163,7 +163,7 @@ void ETH_IRQHandler(void)
 {
 	while(ETH_GetRxPktSize(DMARxDescToGet)!=0) 	//检测是否收到数据包
 	{ 
-		//lwip_pkt_handle();		
+	    //lwip_pkt_handle();		
 	}
 	ETH_DMAClearITPendingBit(ETH_DMA_IT_R);
 	ETH_DMAClearITPendingBit(ETH_DMA_IT_NIS);

@@ -22,25 +22,35 @@
 //修改说明
 ////////////////////////////////////////////////////////////////////////////////// 
 
-static u8  fac_us=0;							//us延时倍乘数			   
+static u8  fac_us=0;							//us延时倍乘数
 static u16 fac_ms=0;							//ms延时倍乘数,在os下,代表每个节拍的ms数
 
  
 extern void xPortSysTickHandler(void);
- 
+
+
+
 //systick中断服务函数,使用OS时用到
 void SysTick_Handler(void)
 {	
     if(xTaskGetSchedulerState()!=taskSCHEDULER_NOT_STARTED)//系统已经运行
     {
-        xPortSysTickHandler();	
+        xPortSysTickHandler();
     }
 }
-			   
+
+
+
 //初始化延迟函数
 //SYSTICK的时钟固定为AHB时钟，基础例程里面SYSTICK时钟频率为AHB/8
 //这里为了兼容FreeRTOS，所以将SYSTICK的时钟频率改为AHB的频率！
 //SYSCLK:系统时钟频率
+/*在嘀嗒定时器的控制寄存器中（SysTick->CTRL），较为重要的几个寄存器
+Bit16: 0:计数未结束             1：装载值计数为0
+Bit2 : 0:外部时钟源（SysTick_CLKSource_HCLK_Div8） 1:内部时钟源（SysTick_CLKSource_HCLK）
+Bit1 : 0:禁止中断              1:使能中断
+Bit0 : 0:禁止systick定时器 1:使能systick定时器
+*/
 void delay_init(u8 SYSCLK)
 {
 	u32 reload;
@@ -54,6 +64,8 @@ void delay_init(u8 SYSCLK)
 	SysTick->LOAD=reload; 					//每1/configTICK_RATE_HZ断一次	
 	SysTick->CTRL|=SysTick_CTRL_ENABLE_Msk; //开启SYSTICK     
 }								    
+
+
 
 //延时nus
 //nus:要延时的us数.	
@@ -76,7 +88,10 @@ void delay_us(u32 nus)
 			if(tcnt>=ticks)break;			//时间超过/等于要延迟的时间,则退出.
 		}  
 	};										    
-}  
+}
+
+
+
 //延时nms
 //nms:要延时的ms数
 //nms:0~65535
@@ -93,6 +108,8 @@ void delay_ms(u32 nms)
 	delay_us((u32)(nms*1000));				//普通方式延时
 }
 
+
+
 //延时nms,不会引起任务调度
 //nms:要延时的ms数
 void delay_xms(u32 nms)
@@ -100,6 +117,9 @@ void delay_xms(u32 nms)
 	u32 i;
 	for(i=0;i<nms;i++) delay_us(1000);
 }
+
+
+
 
 void msleep(u32 nms)
 {
