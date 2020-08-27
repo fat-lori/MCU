@@ -1,34 +1,7 @@
-/*
- * Copyright (c) 2001-2003 Swedish Institute of Computer Science.
- * All rights reserved. 
- * 
- * Redistribution and use in source and binary forms, with or without modification, 
- * are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. The name of the author may not be used to endorse or promote products
- *    derived from this software without specific prior written permission. 
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED 
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
- * SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
- * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
- * OF SUCH DAMAGE.
- *
- * This file is part of the lwIP TCP/IP stack.
- * 
- * Author: Adam Dunkels <adam@sics.se>
- *
- */
+
+
+
+
 #ifndef LWIP_LWIPOPTS_H
 #define LWIP_LWIPOPTS_H
 
@@ -45,11 +18,15 @@
 #define LWIP_IGMP                  LWIP_IPV4
 #define LWIP_ICMP                  LWIP_IPV4
 
-#define LWIP_SNMP                  LWIP_UDP
-#define MIB2_STATS                 LWIP_SNMP
+
+
+
+#define LWIP_SNMP                  0
 #ifdef LWIP_HAVE_MBEDTLS
 #define LWIP_SNMP_V3               (LWIP_SNMP)
 #endif
+
+
 
 #define LWIP_DNS                   0                        //打开后,dns.c文件中获取随机函数为未定义，导致编译失败
 #define LWIP_MDNS_RESPONDER        0
@@ -71,6 +48,11 @@
 #define LWIP_NETIF_LINK_CALLBACK        1
 #define LWIP_NETIF_STATUS_CALLBACK      1
 #define LWIP_NETIF_EXT_STATUS_CALLBACK  1
+
+
+#define TCPIP_THREAD_STACKSIZE          2048                     //LWIP内核任务堆大小
+#define TCPIP_MBOX_SIZE                 20
+
 
 #ifdef LWIP_DEBUG
 
@@ -236,16 +218,19 @@ a lot of data that needs to be copied, this should be set high. */
 /* ---------- DHCP options ---------- */
 /* Define LWIP_DHCP to 1 if you want DHCP configuration of
    interfaces. */
-#define LWIP_DHCP               LWIP_UDP
+#define LWIP_DHCP               0
+
 
 /* 1 if you want to do an ARP check on the offered address
    (recommended). */
 #define DHCP_DOES_ARP_CHECK    (LWIP_DHCP)
 
 
+
 /* ---------- AUTOIP options ------- */
 #define LWIP_AUTOIP            (LWIP_DHCP)
 #define LWIP_DHCP_AUTOIP_COOP  (LWIP_DHCP && LWIP_AUTOIP)
+
 
 
 /* ---------- UDP options ---------- */
@@ -254,15 +239,16 @@ a lot of data that needs to be copied, this should be set high. */
 #define UDP_TTL                 255
 
 
+
 /* ---------- RAW options ---------- */
 #define LWIP_RAW                1
 
 
+
+
 /* ---------- Statistics options ---------- */
-
-#define LWIP_STATS              1
+#define LWIP_STATS              0
 #define LWIP_PROVIDE_ERRNO      1
-
 
 #if LWIP_STATS
 #define LINK_STATS              1
@@ -278,22 +264,21 @@ a lot of data that needs to be copied, this should be set high. */
 #define SYS_STATS               1
 #endif /* LWIP_STATS */
 
+
+
+
 /* ---------- NETBIOS options ---------- */
 #define LWIP_NETBIOS_RESPOND_NAME_QUERY 1
 
-/* ---------- PPP options ---------- */
 
+
+/* ---------- PPP options ---------- */
 #define PPP_SUPPORT             0      /* Set > 0 for PPP */
 
 #if PPP_SUPPORT
 
 #define NUM_PPP                 1      /* Max PPP sessions. */
 
-
-/* Select modules to enable.  Ideally these would be set in the makefile but
- * we're limited by the command line length so you need to modify the settings
- * in this file.
- */
 #define PPPOE_SUPPORT           1
 #define PPPOS_SUPPORT           1
 
@@ -312,3 +297,7 @@ a lot of data that needs to be copied, this should be set high. */
 
 
 #endif /* LWIP_LWIPOPTS_H */
+
+
+
+
