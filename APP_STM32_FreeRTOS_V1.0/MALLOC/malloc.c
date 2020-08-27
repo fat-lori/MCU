@@ -150,12 +150,15 @@ void myfree(u8 memx,void *ptr)
 //size:内存大小(字节)
 //返回值:分配到的内存首地址.
 void *mymalloc(u8 memx,u32 size)  
-{  
+{
     u32 offset;   
-	offset=my_mem_malloc(memx,size);  	   	 	   
+    offset=my_mem_malloc(memx,size);  	   	 	   
     if(offset==0XFFFFFFFF)return NULL;  
     else return (void*)((u32)mallco_dev.membase[memx]+offset);  
-}  
+}
+
+
+
 //重新分配内存(外部调用)
 //memx:所属内存块
 //*ptr:旧内存首地址
@@ -167,16 +170,22 @@ void *myrealloc(u8 memx,void *ptr,u32 size)
     offset=my_mem_malloc(memx,size);   	
     if(offset==0XFFFFFFFF)return NULL;     
     else  
-    {  									   
-	    mymemcpy((void*)((u32)mallco_dev.membase[memx]+offset),ptr,size);	//拷贝旧内存内容到新内存   
+    {
+        mymemcpy((void*)((u32)mallco_dev.membase[memx]+offset),ptr,size);	//拷贝旧内存内容到新内存   
         myfree(memx,ptr);  											  		//释放旧内存
         return (void*)((u32)mallco_dev.membase[memx]+offset);  				//返回新内存首地址
-    }  
+    }
 }
 
 
 
-
+void init_malloc(void)
+{
+    //mymalloc初始化
+    my_mem_init(SRAMIN);		//初始化内部内存池
+    my_mem_init(SRAMEX);		//初始化外部内存池
+    my_mem_init(SRAMCCM);		//初始化CCM内存池
+}
 
 
 

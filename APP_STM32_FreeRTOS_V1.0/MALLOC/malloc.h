@@ -36,17 +36,17 @@
 
 //mem1内存参数设定.mem1完全处于内部SRAM里面.
 #define MEM1_BLOCK_SIZE			32  	  						//内存块大小为32字节
-#define MEM1_MAX_SIZE			95*1024  						//最大管理内存 100K，大于95时，会链接报错！
+#define MEM1_MAX_SIZE			20*1024  						//最大管理内存 100K，大于95时，会链接报错！
 #define MEM1_ALLOC_TABLE_SIZE	MEM1_MAX_SIZE/MEM1_BLOCK_SIZE 	//内存表大小
 
 //mem2内存参数设定.mem2的内存池处于外部SRAM里面
 #define MEM2_BLOCK_SIZE			32  	  						//内存块大小为32字节
-#define MEM2_MAX_SIZE			960 *1024  						//最大管理内存960K
+#define MEM2_MAX_SIZE			10 *1024  						//最大管理内存960K
 #define MEM2_ALLOC_TABLE_SIZE	MEM2_MAX_SIZE/MEM2_BLOCK_SIZE 	//内存表大小
 		 
 //mem3内存参数设定.mem3处于CCM,用于管理CCM(特别注意,这部分SRAM,仅CPU可以访问!!)
 #define MEM3_BLOCK_SIZE			32  	  						//内存块大小为32字节
-#define MEM3_MAX_SIZE			60 *1024  						//最大管理内存60K
+#define MEM3_MAX_SIZE			10 *1024  						//最大管理内存60K
 #define MEM3_ALLOC_TABLE_SIZE	MEM3_MAX_SIZE/MEM3_BLOCK_SIZE 	//内存表大小
 		 
 
@@ -68,11 +68,19 @@ void my_mem_init(u8 memx);				//内存管理初始化函数(外/内部调用)
 u32 my_mem_malloc(u8 memx,u32 size);	//内存分配(内部调用)
 u8 my_mem_free(u8 memx,u32 offset);		//内存释放(内部调用)
 u8 my_mem_perused(u8 memx);				//获得内存使用率(外/内部调用) 
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //用户调用函数
 void myfree(u8 memx,void *ptr);  			//内存释放(外部调用)
 void *mymalloc(u8 memx,u32 size);			//内存分配(外部调用)
 void *myrealloc(u8 memx,void *ptr,u32 size);//重新分配内存(外部调用)
+void init_malloc(void);
+
+
+
+
 #endif
 
 

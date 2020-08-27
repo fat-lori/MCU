@@ -3,79 +3,97 @@
 #include "usart.h" 
 #include "delay.h"
 #include "malloc.h" 
+#include "arch/ethernetif.h" 
 
-//__align(4) ETH_DMADESCTypeDef *DMARxDscrTab;	//以太网DMA接收描述符数据结构体指针
-//__align(4) ETH_DMADESCTypeDef *DMATxDscrTab;	//以太网DMA发送描述符数据结构体指针 
-//__align(4) uint8_t *Rx_Buff; 					//以太网底层驱动接收buffers指针 
-//__align(4) uint8_t *Tx_Buff; 					//以太网底层驱动发送buffers指针
-  
+
+#define LOG_TAG "lan8720"
+#include "log.h"
+
+void lwip_pkt_handle(void);
+
+#if 1
+__align(4) ETH_DMADESCTypeDef *DMARxDscrTab;	//以太网DMA接收描述符数据结构体指针
+__align(4) ETH_DMADESCTypeDef *DMATxDscrTab;	//以太网DMA发送描述符数据结构体指针 
+__align(4) uint8_t *Rx_Buff; 					//以太网底层驱动接收buffers指针 
+__align(4) uint8_t *Tx_Buff; 					//以太网底层驱动发送buffers指针
+  #endif
 static void ETHERNET_NVICConfiguration(void);
+
+
+
+
 //LAN8720初始化
 //返回值:0,成功;
 //    其他,失败
 u8 LAN8720_Init(void)
 {
-	u8 rval=0;
-	GPIO_InitTypeDef GPIO_InitStructure;
+    u8 rval=0;
+    GPIO_InitTypeDef GPIO_InitStructure;
   
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA|RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOG , ENABLE);//使能GPIO时钟 RMII接口
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);   //使能SYSCFG时钟
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA|RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOG|RCC_AHB1Periph_GPIOD, ENABLE);//使能GPIO时钟 RMII接口
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);   //使能SYSCFG时钟
   
-	SYSCFG_ETH_MediaInterfaceConfig(SYSCFG_ETH_MediaInterface_RMII); //MAC和PHY之间使用RMII接口
+    SYSCFG_ETH_MediaInterfaceConfig(SYSCFG_ETH_MediaInterface_RMII); //MAC和PHY之间使用RMII接口
 
-	/*网络引脚设置 RMII接口 
-	  ETH_MDIO -------------------------> PA2
-	  ETH_MDC --------------------------> PC1
-	  ETH_RMII_REF_CLK------------------> PA1
-	  ETH_RMII_CRS_DV ------------------> PA7
-	  ETH_RMII_RXD0 --------------------> PC4
-	  ETH_RMII_RXD1 --------------------> PC5
-	  ETH_RMII_TX_EN -------------------> PG11
-	  ETH_RMII_TXD0 --------------------> PG13
-	  ETH_RMII_TXD1 --------------------> PG14
-	  ETH_RESET-------------------------> PD3*/
-					
-	  //配置PA1 PA2 PA7
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_7;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;  
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource1, GPIO_AF_ETH); //引脚复用到网络接口上
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_ETH);
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_ETH);
+    /*网络引脚设置 RMII接口
+      ETH_MDIO -------------------------> PA2
+      ETH_MDC --------------------------> PC1
+      ETH_RMII_REF_CLK------------------> PA1
+      ETH_RMII_CRS_DV ------------------> PA7
+      ETH_RMII_RXD0 --------------------> PC4
+      ETH_RMII_RXD1 --------------------> PC5
+      ETH_RMII_TX_EN -------------------> PG11
+      ETH_RMII_TXD0 --------------------> PG13
+      ETH_RMII_TXD1 --------------------> PG14
+      ETH_RESET-------------------------> PD3*/
+                    
+      //配置PA1 PA2 PA7
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_7;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;  
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource1, GPIO_AF_ETH); //引脚复用到网络接口上
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_ETH);
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_ETH);
 
-	//配置PC1,PC4 and PC5
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_4 | GPIO_Pin_5;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource1, GPIO_AF_ETH); //引脚复用到网络接口上
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource4, GPIO_AF_ETH);
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource5, GPIO_AF_ETH);
+    //配置PC1,PC4 and PC5
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_4 | GPIO_Pin_5;
+    GPIO_Init(GPIOC, &GPIO_InitStructure);
+    GPIO_PinAFConfig(GPIOC, GPIO_PinSource1, GPIO_AF_ETH); //引脚复用到网络接口上
+    GPIO_PinAFConfig(GPIOC, GPIO_PinSource4, GPIO_AF_ETH);
+    GPIO_PinAFConfig(GPIOC, GPIO_PinSource5, GPIO_AF_ETH);
                                 
-	//配置PG11, PG14 and PG13 
-	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_14;
-	GPIO_Init(GPIOG, &GPIO_InitStructure);
-	GPIO_PinAFConfig(GPIOG, GPIO_PinSource11, GPIO_AF_ETH);
-	GPIO_PinAFConfig(GPIOG, GPIO_PinSource13, GPIO_AF_ETH);
-	GPIO_PinAFConfig(GPIOG, GPIO_PinSource14, GPIO_AF_ETH);
-	
-	//配置PD3为推完输出
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;	//推完输出
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;  
-	GPIO_Init(GPIOD, &GPIO_InitStructure);
-	
-	LAN8720_RST=0;					//硬件复位LAN8720
-	delay_ms(50);	
-	LAN8720_RST=1;				 	//复位结束 
-	ETHERNET_NVICConfiguration();
-	rval=ETH_MACDMA_Config();
-	return !rval;					//ETH的规则为:0,失败;1,成功;所以要取反一下 
+    //配置PG11, PG14 and PG13 
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_14;
+    GPIO_Init(GPIOG, &GPIO_InitStructure);
+    GPIO_PinAFConfig(GPIOG, GPIO_PinSource11, GPIO_AF_ETH);
+    GPIO_PinAFConfig(GPIOG, GPIO_PinSource13, GPIO_AF_ETH);
+    GPIO_PinAFConfig(GPIOG, GPIO_PinSource14, GPIO_AF_ETH);
+    
+    //配置PD3为推完输出
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;  //推完输出
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;  
+    GPIO_Init(GPIOD, &GPIO_InitStructure);
+    
+    LAN8720_RST=0;                  //硬件复位LAN8720
+    delay_ms(50);   
+    LAN8720_RST=1;                  //复位结束 
+    ETHERNET_NVICConfiguration();   //设置中断优先级
+    rval=ETH_MACDMA_Config();       //配置MAC及DMA
+    printf("\r\n Lan8720 Init %s!",rval==1?"Success":"Fail");
+    
+    return !rval;                   //ETH的规则为:0,失败;1,成功;所以要取反一下 
 }
+
+
+
+
 
 //以太网中断分组配置
 void ETHERNET_NVICConfiguration(void)
@@ -83,11 +101,12 @@ void ETHERNET_NVICConfiguration(void)
 	NVIC_InitTypeDef NVIC_InitStructure;
 	
 	NVIC_InitStructure.NVIC_IRQChannel = ETH_IRQn;  //以太网中断
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0X00; //中断寄存器组2最高优先级
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0X06; //中断寄存器组2最高优先级
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0X00;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
+
 
 
 //得到8720的速度模式
@@ -157,17 +176,22 @@ u8 ETH_MACDMA_Config(void)
 	return rval;
 }
 
-//extern void lwip_pkt_handle(void);		//在lwip_comm.c里面定义
+
+
 //以太网中断服务函数
 void ETH_IRQHandler(void)
 {
-	while(ETH_GetRxPktSize(DMARxDescToGet)!=0) 	//检测是否收到数据包
-	{ 
-	    //lwip_pkt_handle();		
-	}
-	ETH_DMAClearITPendingBit(ETH_DMA_IT_R);
-	ETH_DMAClearITPendingBit(ETH_DMA_IT_NIS);
+    //printf("\r\n int");
+    
+    lwip_pkt_handle();
+        
+    ETH_DMAClearITPendingBit(ETH_DMA_IT_R);     //清除DMA中断标志位
+    ETH_DMAClearITPendingBit(ETH_DMA_IT_NIS);   //清除DMA接收中断标志位
 }  
+
+
+
+
 //接收一个网卡数据包
 //返回值:网络数据包帧结构体
 FrameTypeDef ETH_Rx_Packet(void)
@@ -199,6 +223,9 @@ FrameTypeDef ETH_Rx_Packet(void)
 	DMARxDescToGet=(ETH_DMADESCTypeDef*)(DMARxDescToGet->Buffer2NextDescAddr);   
 	return frame;  
 }
+
+
+
 //发送一个网卡数据包
 //FrameLength:数据包长度
 //返回值:ETH_ERROR,发送失败(0)
@@ -220,6 +247,9 @@ u8 ETH_Tx_Packet(u16 FrameLength)
 	DMATxDescToSet=(ETH_DMADESCTypeDef*)(DMATxDescToSet->Buffer2NextDescAddr);    
 	return ETH_SUCCESS;   
 }
+
+
+
 //得到当前描述符的Tx buffer地址
 //返回值:Tx buffer地址
 u32 ETH_GetCurrentTxBuffer(void)
@@ -227,11 +257,14 @@ u32 ETH_GetCurrentTxBuffer(void)
   return DMATxDescToSet->Buffer1Addr;//返回Tx buffer地址  
 }
 
+
+#if 1
 //为ETH底层驱动申请内存
 //返回值:0,正常
 //    其他,失败
 u8 ETH_Mem_Malloc(void)
 { 
+    #if 1
 	DMARxDscrTab=mymalloc(SRAMIN,ETH_RXBUFNB*sizeof(ETH_DMADESCTypeDef));//申请内存
 	DMATxDscrTab=mymalloc(SRAMIN,ETH_TXBUFNB*sizeof(ETH_DMADESCTypeDef));//申请内存  
 	Rx_Buff=mymalloc(SRAMIN,ETH_RX_BUF_SIZE*ETH_RXBUFNB);	//申请内存
@@ -241,30 +274,22 @@ u8 ETH_Mem_Malloc(void)
 		ETH_Mem_Free();
 		return 1;	//申请失败
 	}	
+    #endif
 	return 0;		//申请成功
 }
 
 //释放ETH 底层驱动申请的内存
 void ETH_Mem_Free(void)
 { 
+    #if 1
 	myfree(SRAMIN,DMARxDscrTab);//释放内存
 	myfree(SRAMIN,DMATxDscrTab);//释放内存
 	myfree(SRAMIN,Rx_Buff);		//释放内存
 	myfree(SRAMIN,Tx_Buff);		//释放内存  
+    #endif
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
+#endif
 
 
 

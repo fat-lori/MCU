@@ -15,7 +15,6 @@
 #include "malloc.h"	
 #include "lcd.h"
 #include "control.h"
-#include "task.h"
 #include "timers.h"
 #include "task_manage.h"
 
@@ -29,6 +28,7 @@ TaskHandle_t LED1Task_Handler;
 TaskHandle_t FLOATTask_Handler;
 //定时器计时
 volatile UI8_T timer_count,time_1s_count;
+void TCPIP_Init(void);
 
 
 //LED0任务函数 
@@ -53,6 +53,7 @@ void led1_task(void *pvParameters)
 	}
 }
 
+#if 0
 //浮点测试任务
 void float_task(void *pvParameters)
 {
@@ -78,6 +79,7 @@ void float_task(void *pvParameters)
 		vTaskDelay(1000);
 	}
 }
+#endif
 
 //命令行任务
 void CliTask(void *pvParameters)
@@ -195,13 +197,6 @@ void start_task(void *pvParameters)
 				(UBaseType_t	)LED1_TASK_PRIO,
 				(TaskHandle_t*	)&LED1Task_Handler);
 	
-	//浮点测试任务
-	xTaskCreate((TaskFunction_t )float_task,	 
-				(const char*	)"float_task",	 
-				(uint16_t		)FLOAT_STK_SIZE, 
-				(void*			)NULL,
-				(UBaseType_t	)FLOAT_TASK_PRIO,
-				(TaskHandle_t*	)&FLOATTask_Handler); 
 	//命令行任务
 	xTaskCreate((TaskFunction_t )CliTask,	 
 				(const char*	)"cli_task",	 
@@ -210,6 +205,14 @@ void start_task(void *pvParameters)
 				(UBaseType_t	)4,
 				(TaskHandle_t*	)NULL);
     #if 0
+    //浮点测试任务
+	xTaskCreate((TaskFunction_t )float_task,	 
+				(const char*	)"float_task",	 
+				(uint16_t		)FLOAT_STK_SIZE, 
+				(void*			)NULL,
+				(UBaseType_t	)FLOAT_TASK_PRIO,
+				(TaskHandle_t*	)&FLOATTask_Handler); 
+    
     //发送数据A任务
     xTaskCreate((TaskFunction_t )sendA_task, 	
 				(const char*	)"sendA_task",	
@@ -238,6 +241,8 @@ void start_task(void *pvParameters)
 
 void card_setup()
 {
+    
+    
     taskENTER_CRITICAL();			//进入临界区，保证临界段中的程序执行不被任何中断打断！
 
     LOG_DEBUG("Start Task!");
@@ -261,6 +266,10 @@ void card_setup()
 		if(xTimerStart(timer_hdl,100) != pdPASS)
 			printf("Failed to start softtimer!"); 
 	}
+
+    //创建TCPIP线程
+    TCPIP_Init();
+
     
     taskEXIT_CRITICAL();			//退出临界区
 }

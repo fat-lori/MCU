@@ -57,12 +57,13 @@
   * @{
   */ 
 
+#if 0
 #if defined   (__CC_ARM)        // !< ARM Compiler
-    __align(4) ETH_DMADESCTypeDef  DMARxDscrTab[ETH_RXBUFNB];// Ethernet Rx MA Descriptor 
-    __align(4) ETH_DMADESCTypeDef  DMATxDscrTab[ETH_TXBUFNB];// Ethernet Tx DMA Descriptor 
-    __align(4) uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE]; // Ethernet Receive Buffer 
-    __align(4) uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE]; // Ethernet Transmit Buffer 
-
+    __align(4) ETH_DMADESCTypeDef  DMARxDscrTab[ETH_RXBUFNB];/* Ethernet Rx MA Descriptor */
+    __align(4) ETH_DMADESCTypeDef  DMATxDscrTab[ETH_TXBUFNB];/* Ethernet Tx DMA Descriptor */
+    __align(4) uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE]; /* Ethernet Receive Buffer */
+    __align(4) uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE]; /* Ethernet Transmit Buffer */
+    
 #elif defined ( __ICCARM__ )    // !< IAR Compiler
 #pragma data_alignment=4
     ETH_DMADESCTypeDef  DMARxDscrTab[ETH_RXBUFNB];// Ethernet Rx MA Descriptor 
@@ -87,7 +88,7 @@
 
 #endif // __CC_ARM 
 
-
+#endif
 
 /* Global pointers on Tx and Rx descriptor used to track transmit and receive descriptors */
 __IO ETH_DMADESCTypeDef  *DMATxDescToSet;

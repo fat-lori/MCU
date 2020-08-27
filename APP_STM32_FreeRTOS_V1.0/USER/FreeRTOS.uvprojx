@@ -861,6 +861,11 @@
               <FileType>1</FileType>
               <FilePath>..\LWIP\arch\sys_arch.c</FilePath>
             </File>
+            <File>
+              <FileName>ethernetif.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\LWIP\arch\ethernetif.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
