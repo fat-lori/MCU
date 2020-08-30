@@ -3,21 +3,17 @@
 #include "usart.h" 
 #include "delay.h"
 #include "malloc.h" 
-#include "arch/ethernetif.h" 
 
 
-#define LOG_TAG "lan8720"
-#include "log.h"
+
+
 
 void lwip_pkt_handle(void);
 
-#if 1
-__align(4) ETH_DMADESCTypeDef *DMARxDscrTab;	//以太网DMA接收描述符数据结构体指针
-__align(4) ETH_DMADESCTypeDef *DMATxDscrTab;	//以太网DMA发送描述符数据结构体指针 
-__align(4) uint8_t *Rx_Buff; 					//以太网底层驱动接收buffers指针 
-__align(4) uint8_t *Tx_Buff; 					//以太网底层驱动发送buffers指针
-  #endif
 static void ETHERNET_NVICConfiguration(void);
+
+
+
 
 
 
@@ -90,6 +86,7 @@ u8 LAN8720_Init(void)
     
     return !rval;                   //ETH的规则为:0,失败;1,成功;所以要取反一下 
 }
+
 
 
 
@@ -258,13 +255,13 @@ u32 ETH_GetCurrentTxBuffer(void)
 }
 
 
-#if 1
+
+#if 0
 //为ETH底层驱动申请内存
 //返回值:0,正常
 //    其他,失败
 u8 ETH_Mem_Malloc(void)
 { 
-    #if 1
 	DMARxDscrTab=mymalloc(SRAMIN,ETH_RXBUFNB*sizeof(ETH_DMADESCTypeDef));//申请内存
 	DMATxDscrTab=mymalloc(SRAMIN,ETH_TXBUFNB*sizeof(ETH_DMADESCTypeDef));//申请内存  
 	Rx_Buff=mymalloc(SRAMIN,ETH_RX_BUF_SIZE*ETH_RXBUFNB);	//申请内存
@@ -273,20 +270,18 @@ u8 ETH_Mem_Malloc(void)
 	{
 		ETH_Mem_Free();
 		return 1;	//申请失败
-	}	
-    #endif
+	}
+    
 	return 0;		//申请成功
 }
 
 //释放ETH 底层驱动申请的内存
 void ETH_Mem_Free(void)
 { 
-    #if 1
 	myfree(SRAMIN,DMARxDscrTab);//释放内存
 	myfree(SRAMIN,DMATxDscrTab);//释放内存
 	myfree(SRAMIN,Rx_Buff);		//释放内存
 	myfree(SRAMIN,Tx_Buff);		//释放内存  
-    #endif
 }
 
 #endif
@@ -296,6 +291,35 @@ void ETH_Mem_Free(void)
 
 
 
+#if defined   (__CC_ARM)        // < ARM Compiler
+__align(4) ETH_DMADESCTypeDef  DMARxDscrTab[ETH_RXBUFNB];// Ethernet Rx MA Descriptor
+__align(4) ETH_DMADESCTypeDef  DMATxDscrTab[ETH_TXBUFNB];/* Ethernet Tx DMA Descriptor */
+__align(4) uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE]; /* Ethernet Receive Buffer */
+__align(4) uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE]; /* Ethernet Transmit Buffer */
+
+#elif defined ( __ICCARM__ )    // !< IAR Compiler
+#pragma data_alignment=4
+    ETH_DMADESCTypeDef  DMARxDscrTab[ETH_RXBUFNB];// Ethernet Rx MA Descriptor 
+#pragma data_alignment=4
+    ETH_DMADESCTypeDef  DMATxDscrTab[ETH_TXBUFNB];// Ethernet Tx DMA Descriptor 
+#pragma data_alignment=4
+    uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE]; // Ethernet Receive Buffer 
+#pragma data_alignment=4
+    uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE]; // Ethernet Transmit Buffer 
+
+#elif defined (__GNUC__)        // !< GNU Compiler
+    ETH_DMADESCTypeDef  DMARxDscrTab[ETH_RXBUFNB] __attribute__ ((aligned (4))); // Ethernet Rx DMA Descriptor 
+    ETH_DMADESCTypeDef  DMATxDscrTab[ETH_TXBUFNB] __attribute__ ((aligned (4))); // Ethernet Tx DMA Descriptor 
+    uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE] __attribute__ ((aligned (4))); // Ethernet Receive Buffer 
+    uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE] __attribute__ ((aligned (4))); // Ethernet Transmit Buffer 
+
+#elif defined  (__TASKING__)    // !< TASKING Compiler
+    __align(4) ETH_DMADESCTypeDef  DMARxDscrTab[ETH_RXBUFNB];// Ethernet Rx MA Descriptor 
+    __align(4) ETH_DMADESCTypeDef  DMATxDscrTab[ETH_TXBUFNB];// Ethernet Tx DMA Descriptor 
+    __align(4) uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE]; // Ethernet Receive Buffer 
+    __align(4) uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE]; // Ethernet Transmit Buffer 
+
+#endif // __CC_ARM 
 
 
 

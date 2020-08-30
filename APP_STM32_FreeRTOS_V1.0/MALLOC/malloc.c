@@ -19,6 +19,8 @@
 ////////////////////////////////////////////////////////////////////////////////// 	 
 
 
+#if 0
+
 //内存池(32字节对齐)
 __align(32) u8 mem1base[MEM1_MAX_SIZE];													//内部SRAM内存池
 __align(32) u8 mem2base[MEM2_MAX_SIZE] __attribute__((at(0X68000000)));					//外部SRAM内存池
@@ -189,8 +191,7 @@ void init_malloc(void)
 
 
 
-
-
+#endif
 
 
 

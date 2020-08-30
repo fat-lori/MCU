@@ -19,10 +19,12 @@
 #define LAN8720_PHY_ADDRESS  	0x00				//LAN8720 PHY芯片地址.
 #define LAN8720_RST 		   	PDout(3) 			//LAN8720复位引脚	 
 
-extern ETH_DMADESCTypeDef *DMARxDscrTab;			//以太网DMA接收描述符数据结构体指针
-extern ETH_DMADESCTypeDef *DMATxDscrTab;			//以太网DMA发送描述符数据结构体指针 
-extern uint8_t *Rx_Buff; 							//以太网底层驱动接收buffers指针 
-extern uint8_t *Tx_Buff; 							//以太网底层驱动发送buffers指针
+
+extern ETH_DMADESCTypeDef  DMARxDscrTab[ETH_RXBUFNB];   //以太网DMA接收描述符数据结构体指针
+extern ETH_DMADESCTypeDef  DMATxDscrTab[ETH_TXBUFNB];   //以太网DMA发送描述符数据结构体指针 
+extern uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE];   //以太网底层驱动接收buffers指针 
+extern uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE];   //以太网底层驱动发送buffers指针
+
 extern ETH_DMADESCTypeDef  *DMATxDescToSet;			//DMA发送描述符追踪指针
 extern ETH_DMADESCTypeDef  *DMARxDescToGet; 		//DMA接收描述符追踪指针 
 extern ETH_DMA_Rx_Frame_infos *DMA_RX_FRAME_infos;	//DMA最后接收到的帧信息指针

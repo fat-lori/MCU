@@ -43,11 +43,6 @@ void TCPIP_Init(void)
 {
     tcpip_init(NULL, NULL);
 
-    if(ETH_Mem_Malloc())
-    {
-        LOG_ERR("\r\n malloc fail");
-        return;       //内存申请失败
-    }
 
     struct netif *Netif_Init_Flag;		//调用netif_add()函数时的返回值,用于判断网络初始化是否成功
     /* IP addresses initialization */
@@ -169,8 +164,8 @@ static err_t low_level_init(struct netif *netif)
 	netif->flags = NETIF_FLAG_BROADCAST|NETIF_FLAG_ETHARP|NETIF_FLAG_LINK_UP;
 	
 	ETH_MACAddressConfig(ETH_MAC_Address0, netif->hwaddr); //向STM32F4的MAC地址寄存器中写入MAC地址
-	ETH_DMATxDescChainInit(DMATxDscrTab, Tx_Buff, ETH_TXBUFNB);
-	ETH_DMARxDescChainInit(DMARxDscrTab, Rx_Buff, ETH_RXBUFNB);
+	ETH_DMATxDescChainInit(DMATxDscrTab, Tx_Buff[0], ETH_TXBUFNB);
+	ETH_DMARxDescChainInit(DMARxDscrTab, Rx_Buff[0], ETH_RXBUFNB);
 
     //创建计数信号量，来计数MAC中断次数
     BinarySemaphoreMacRx = xSemaphoreCreateBinary();

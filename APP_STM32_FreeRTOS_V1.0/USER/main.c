@@ -38,7 +38,7 @@ int main(void)
 
 
     //软件初始化
-    init_malloc();              //初始化内存池
+    //init_malloc();              //初始化内存池
     init_queue(QUEUE_SRC_TEST, 16, sizeof(int));
     lock_init();
     LOG_INFO("SofeWare Init Successful!");
